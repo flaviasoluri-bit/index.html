@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Hollyburn Huskies — Season 26/27</title>
+<script>
+// Load Chart.js async — never blocks the app
+(function() {
+  var s = document.createElement('script');
+  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js';
+  s.async = true;
+  document.head.appendChild(s);
+})();
+</script>
+<style>
+  :root {
+    --navy: #0a1628;
+    --blue: #1a3a6b;
+    --blue-mid: #2255a0;
+    --green: #2e7d32;
+    --green-light: #4caf50;
+    --white: #ffffff;
+    --off-white: #f0f4f8;
+    --black: #0d0d0d;
+    --entry-bg: #fffde7;
+    --border: #c8d6e8;
+    --red: #c62828;
+    --yellow: #f9a825;
+    --for-bg: #f1faf2;
+    --for-header: #2e7d32;
+    --for-stripe: #dceedd;
+    --against-bg: #fff8f5;
+    --against-header: #c0511a;
+    --against-stripe: #fde8da;
+    --tab-h: 56px;
+    --font: 'Segoe UI', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: var(--off-white); color: var(--black); min-height: 100vh; }
+
+  /* ── HEADER ── */
+  .app-header {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
+    color: var(--white);
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 14px;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.45);
+    min-height: 72px;
+  }
+  .header-logo { height: 64px; width: 64px; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 2px 4px rgba(0,0,0,.4)); }
+  .header-text { flex: 1; }
+  .header-text h1 { font-size: 1.2rem; font-weight: 800; letter-spacing: .5px; line-height: 1.2; }
+  .header-text p { font-size: 0.72rem; opacity: .75; margin-top: 2px; }
+  .header-save-btn {
+    background: var(--green); color: #fff; border: none; border-radius: 8px;
+    padding: 9px 14px; font-size: 0.78rem; font-weight: 700; cursor: pointer;
+    white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,.3);
+    display: flex; align-items: center; gap: 5px;
+    transition: filter .15s;
+  }
+  .header-save-btn:hover { filter: brightness(1.12); }
+  .header-dash-btn {
+    background: var(--blue-mid); color: #fff; border: none; border-radius: 8px;
+    padding: 9px 14px; font-size: 0.78rem; font-weight: 700; cursor: pointer;
+    white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,.3);
+    display: flex; align-items: center; gap: 5px;
+    transition: filter .15s;
+  }
+  .header-dash-btn:hover { filter: brightness(1.12); }
+
+  /* ── TABS ── */
+  .tabs {
+    display: flex; background: var(--navy);
+    position: sticky; top: 72px; z-index: 99;
+    border-bottom: 3px solid var(--green);
+  }
+  .tab-btn {
+    flex: 1; padding: 0 4px; height: var(--tab-h);
+    background: transparent; border: none; color: rgba(255,255,255,.55);
+    font-size: 0.78rem; font-weight: 600; letter-spacing: .4px;
+    cursor: pointer; transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 5px;
+    text-transform: uppercase;
+  }
+  .tab-btn.active { color: var(--white); background: var(--blue-mid); border-bottom: 3px solid var(--green-light); margin-bottom: -3px; }
+  .tab-btn:hover:not(.active) { color: var(--white); background: rgba(255,255,255,.08); }
+
+  /* ── PANELS ── */
+  .panel { display: none; padding: 12px; max-width: 960px; margin: 0 auto; }
+  .panel.active { display: block; }
+
+  /* ── SECTION CARDS ── */
+  .card { background: var(--white); border-radius: 10px; box-shadow: 0 1px 6px rgba(0,0,0,.10); margin-bottom: 14px; overflow: hidden; }
+  .card-header {
+    background: linear-gradient(90deg, var(--blue) 0%, var(--blue-mid) 100%);
+    color: var(--white); padding: 9px 14px;
+    font-size: 0.8rem; font-weight: 700; letter-spacing: .6px; text-transform: uppercase;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card-header .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green-light); flex-shrink:0; }
+  .card-body { padding: 12px; }
+
+  /* ── FORM FIELDS ── */
+  .field-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+  .field-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 120px; }
+  .field-group label { font-size: 0.68rem; font-weight: 700; color: var(--blue); text-transform: uppercase; letter-spacing: .5px; }
+  .field-group input, .field-group select, .field-group textarea {
+    border: 1.5px solid var(--border); border-radius: 7px;
+    padding: 9px 10px; font-size: 0.88rem; background: var(--entry-bg);
+    width: 100%; outline: none; transition: border .15s; font-family: var(--font);
+  }
+  .field-group input:focus, .field-group select:focus, .field-group textarea:focus { border-color: var(--blue-mid); background: #fff; }
+  .field-group textarea { resize: vertical; min-height: 70px; }
+
+  /* ── ROSTER TABLE ── */
+  .roster-wrap { overflow-x: auto; }
+  table.roster { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  table.roster th { background: var(--navy); color: var(--white); padding: 9px 10px; text-align: left; font-size: 0.72rem; letter-spacing: .5px; text-transform: uppercase; white-space: nowrap; }
+  table.roster td { padding: 7px 8px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  table.roster tr:nth-child(even) td { background: #f5f8ff; }
+  table.roster tr:hover td { background: #e8f0fd; }
+  table.roster td input, table.roster td select { border: 1px solid transparent; border-radius: 5px; padding: 5px 6px; font-size: 0.82rem; background: transparent; width: 100%; font-family: var(--font); }
+  table.roster td input:focus, table.roster td select:focus { border-color: var(--blue-mid); background: var(--entry-bg); outline: none; }
+  .btn-del { background: none; border: none; color: #c62828; font-size: 1.1rem; cursor: pointer; padding: 2px 6px; border-radius: 4px; }
+  .btn-del:hover { background: #fdecea; }
+  .btn-add-row { margin-top: 10px; padding: 9px 18px; border: 2px dashed var(--blue-mid); background: transparent; color: var(--blue-mid); border-radius: 7px; font-size: 0.82rem; font-weight: 600; cursor: pointer; width: 100%; transition: all .15s; }
+  .btn-add-row:hover { background: #e8f0fd; }
+
+  /* ── SPLIT STAT TABLES ── */
+  .split-tables { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  @media (max-width: 700px) { .split-tables { grid-template-columns: 1fr; } }
+
+  .stat-block { border-radius: 10px; overflow: hidden; box-shadow: 0 1px 5px rgba(0,0,0,.12); }
+  .stat-block-header {
+    padding: 10px 14px; font-size: 0.8rem; font-weight: 800; letter-spacing: .6px;
+    text-transform: uppercase; color: #fff; display: flex; align-items: center; gap: 8px;
+  }
+  .stat-block-header.for-header { background: #3d8b41; }
+  .stat-block-header.against-header { background: #c0511a; }
+  .stat-block-body { overflow-x: auto; }
+
+  table.split-tbl { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  table.split-tbl th { padding: 8px 10px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: .4px; text-align: center; color: #fff; }
+  table.split-tbl th.for-th { background: #4caf50; }
+  table.split-tbl th.against-th { background: #e07850; }
+  table.split-tbl th:first-child { text-align: left; }
+  table.split-tbl td { padding: 6px 8px; border-bottom: 1px solid rgba(0,0,0,.06); text-align: center; vertical-align: middle; }
+  table.split-tbl td:first-child { text-align: left; font-weight: 700; font-size: 0.78rem; padding-left: 12px; white-space: nowrap; }
+  table.split-tbl tr.for-total td { background: #3d8b41; color: #fff; font-weight: 700; }
+  table.split-tbl tr.against-total td { background: #c0511a; color: #fff; font-weight: 700; }
+  table.split-tbl tr:nth-child(even):not(.for-total):not(.against-total) td { background: rgba(0,0,0,.03); }
+  .for-bg-tbl { background: var(--for-bg); }
+  .against-bg-tbl { background: var(--against-bg); }
+
+  /* FO + Penalties row below split tables */
+  .fo-pen-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  @media (max-width: 500px) { .fo-pen-row { grid-template-columns: 1fr; } }
+  .fo-pen-block { background: #fff; border-radius: 10px; box-shadow: 0 1px 5px rgba(0,0,0,.10); overflow: hidden; }
+  .fo-pen-block-header { background: var(--blue); color: #fff; padding: 9px 14px; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+  .fo-pen-block-body { overflow-x: auto; }
+  table.fo-tbl { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  table.fo-tbl th { background: var(--blue-mid); color: #fff; padding: 7px 10px; font-size: 0.7rem; text-transform: uppercase; text-align: center; letter-spacing: .4px; }
+  table.fo-tbl th:first-child { text-align: left; }
+  table.fo-tbl td { padding: 6px 8px; border-bottom: 1px solid var(--border); text-align: center; vertical-align: middle; }
+  table.fo-tbl td:first-child { text-align: left; font-weight: 700; font-size: 0.78rem; padding-left: 12px; }
+  table.fo-tbl tr:nth-child(even) td { background: #f0f4ff; }
+  table.fo-tbl tr.fo-total td { background: var(--navy); color: #fff; font-weight: 700; }
+
+  /* ── COUNTER CELL ── */
+  .counter { display: inline-flex; align-items: center; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.18); }
+  .counter-val { min-width: 34px; text-align: center; font-weight: 800; font-size: 1rem; padding: 0 5px; background: var(--white); color: var(--black); border-top: 1.5px solid var(--border); border-bottom: 1.5px solid var(--border); line-height: 44px; height: 44px; user-select: none; }
+  .counter-val.total-val { background: transparent; color: #fff; border-color: transparent; }
+  .cbtn { width: 44px; height: 44px; border: none; cursor: pointer; font-size: 1.4rem; font-weight: 700; display: flex; align-items: center; justify-content: center; transition: filter .1s; line-height: 1; touch-action: manipulation; }
+  .cbtn.minus { background: #d32f2f; color: #fff; }
+  .cbtn.plus  { background: #388e3c; color: #fff; }
+  .cbtn:active { filter: brightness(.8); transform: scale(.95); }
+
+  /* ── PLAYER STAT TABLE ── */
+  .player-wrap { overflow-x: auto; }
+  table.player-tbl { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 580px; }
+  table.player-tbl th { background: var(--blue); color: var(--white); padding: 8px 6px; font-size: 0.68rem; letter-spacing: .4px; text-transform: uppercase; text-align: center; white-space: nowrap; }
+  table.player-tbl th:first-child { text-align: left; padding-left: 8px; }
+  table.player-tbl td { padding: 5px 4px; border-bottom: 1px solid var(--border); text-align: center; vertical-align: middle; }
+  table.player-tbl td:first-child { text-align: left; padding-left: 6px; }
+  table.player-tbl tr.total-row td { background: var(--navy); color: var(--white); font-weight: 700; }
+  table.player-tbl tr:nth-child(even):not(.total-row) td { background: #f5f8ff; }
+  table.player-tbl select { border: 1px solid var(--border); border-radius: 5px; padding: 4px 5px; font-size: 0.76rem; background: var(--entry-bg); font-family: var(--font); max-width: 120px; }
+  table.player-tbl select:focus { outline: none; border-color: var(--blue-mid); }
+
+  /* ── FACEOFF DISPLAY ── */
+  .fo-pct-bar { background: #e8f0fd; border-radius: 8px; padding: 10px 14px; margin-top: 10px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .fo-pct-label { font-size: 0.75rem; font-weight: 700; color: var(--blue); text-transform: uppercase; }
+  .fo-pct-formula { font-size: 0.78rem; color: #555; flex: 1; }
+  .fo-pct-val { font-size: 1.2rem; font-weight: 800; }
+
+  /* ── DASHBOARD ── */
+  .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  @media (max-width: 600px) { .dash-grid { grid-template-columns: 1fr; } }
+  .dash-card { background: var(--white); border-radius: 10px; box-shadow: 0 1px 6px rgba(0,0,0,.10); overflow: hidden; margin-bottom: 0; }
+  .dash-card-header { background: var(--navy); color: var(--white); padding: 9px 14px; font-size: 0.75rem; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; }
+  .dash-card-body { padding: 12px; }
+  .metric-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .metric-tile { border-radius: 8px; padding: 10px 12px; text-align: center; border: 1.5px solid var(--border); }
+  .metric-tile .m-label { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: #555; margin-bottom: 4px; }
+  .metric-tile .m-val { font-size: 1.5rem; font-weight: 800; }
+  .good { background: #e8f5e9; border-color: #a5d6a7; } .good .m-val { color: var(--green); }
+  .avg  { background: #fffde7; border-color: #fff176; } .avg .m-val  { color: #e65100; }
+  .bad  { background: #ffebee; border-color: #ef9a9a; } .bad .m-val  { color: var(--red); }
+  .neutral { background: #f5f8ff; } .neutral .m-val { color: var(--blue); }
+  .leaderboard { list-style: none; }
+  .leaderboard li { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); }
+  .leaderboard li:last-child { border-bottom: none; }
+  .lb-rank { font-weight: 800; font-size: 0.9rem; color: var(--blue-mid); min-width: 22px; }
+  .lb-name { flex: 1; font-size: 0.8rem; font-weight: 600; }
+  .lb-val { font-weight: 700; color: var(--green); font-size: 0.95rem; }
+  .lb-bar-wrap { flex: 1; background: #e8f0fd; border-radius: 20px; height: 8px; overflow: hidden; }
+  .lb-bar { height: 100%; background: linear-gradient(90deg, var(--green), var(--blue-mid)); border-radius: 20px; }
+  canvas { max-width: 100%; }
+  .chart-wrap { position: relative; height: 200px; }
+  .chart-wrap-sm { position: relative; height: 160px; }
+  .fo-stats { display: flex; justify-content: space-around; text-align: center; padding: 8px 0; }
+  .fo-stat .fo-val { font-size: 1.8rem; font-weight: 800; color: var(--blue); }
+  .fo-stat .fo-label { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; color: #666; margin-top: 2px; }
+  .save-toast { position: fixed; bottom: 20px; right: 20px; background: var(--green); color: #fff; padding: 10px 18px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; opacity: 0; transition: opacity .3s; z-index: 200; pointer-events: none; }
+  .save-toast.show { opacity: 1; }
+  .games-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+  .games-table th { background: var(--blue); color: #fff; padding: 7px 8px; text-align: center; font-size: 0.68rem; text-transform: uppercase; }
+  .games-table td { padding: 6px 8px; border-bottom: 1px solid var(--border); text-align: center; }
+  .games-table tr:nth-child(even) td { background: #f5f8ff; }
+
+  /* ── HISTORY TABLE ── */
+  .history-wrap { overflow-x: auto; }
+  table.history-tbl { width: 100%; border-collapse: collapse; font-size: 0.78rem; min-width: 700px; }
+  table.history-tbl th {
+    background: var(--navy); color: #fff; padding: 9px 10px;
+    font-size: 0.68rem; text-transform: uppercase; letter-spacing: .4px;
+    text-align: center; white-space: nowrap; position: sticky; top: 0;
+  }
+  table.history-tbl th:first-child { text-align: left; padding-left: 14px; }
+  table.history-tbl td { padding: 8px 8px; border-bottom: 1px solid var(--border); text-align: center; vertical-align: middle; }
+  table.history-tbl td:first-child { text-align: left; padding-left: 14px; font-weight: 600; }
+  table.history-tbl tr:nth-child(even) td { background: #f5f8ff; }
+  table.history-tbl tr:hover td { background: #e8f0fd; }
+  .result-w { background: #e8f5e9; color: #2e7d32; font-weight: 800; border-radius: 5px; padding: 2px 8px; display: inline-block; font-size: 0.8rem; }
+  .result-l { background: #ffebee; color: #c62828; font-weight: 800; border-radius: 5px; padding: 2px 8px; display: inline-block; font-size: 0.8rem; }
+  .result-t { background: #f5f5f5; color: #757575; font-weight: 800; border-radius: 5px; padding: 2px 8px; display: inline-block; font-size: 0.8rem; }
+  .history-empty { text-align: center; padding: 36px 20px; color: #999; font-size: 0.88rem; }
+  .history-empty .empty-icon { font-size: 2.5rem; display: block; margin-bottom: 8px; }
+  .record-btn {
+    background: linear-gradient(135deg, #2e7d32 0%, #43a047 100%);
+    color: #fff; border: none; border-radius: 9px;
+    padding: 13px 22px; font-size: 0.9rem; font-weight: 800; cursor: pointer;
+    width: 100%; box-shadow: 0 3px 8px rgba(46,125,50,.35);
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    letter-spacing: .3px; transition: filter .15s; margin-top: 4px;
+  }
+  .record-btn:hover { filter: brightness(1.1); }
+  .clear-btn {
+    background: #fff; color: #c62828; border: 2px solid #ef9a9a; border-radius: 9px;
+    padding: 12px 22px; font-size: 0.88rem; font-weight: 700; cursor: pointer;
+    width: 100%; margin-top: 10px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    letter-spacing: .3px; transition: background .15s, border-color .15s;
+  }
+  .clear-btn:hover { background: #ffebee; border-color: #e57373; }
+  .history-stats-summary { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+  .hist-stat-pill { flex: 1; min-width: 80px; background: #fff; border-radius: 9px; box-shadow: 0 1px 5px rgba(0,0,0,.1); padding: 10px 12px; text-align: center; }
+  .hist-stat-pill .pill-val { font-size: 1.4rem; font-weight: 800; color: var(--blue); }
+  .hist-stat-pill .pill-lbl { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; color: #777; letter-spacing: .4px; margin-top: 2px; }
+
+  @media print { .tabs, .app-header, .header-save-btn, .header-dash-btn, .cbtn, .btn-del, .btn-add-row, .record-btn { display: none !important; } .panel { display: block !important; } }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <img class="header-logo" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCACAAH0DASIAAhEBAxEB/8QAHQAAAgMAAwEBAAAAAAAAAAAAAAgFBgcBAwQJAv/EAEIQAAEDAwMCBQIDBAcFCQAAAAECAwQFBhEABxIhMQgTIkFRFGEVFjIXI0JxJFJicqGz1AklgpHSQ0ZUVoGEtcHw/8QAGQEBAAMBAQAAAAAAAAAAAAAAAAEDBAUC/8QAKhEAAgIBAwQCAQMFAAAAAAAAAQIAAxEEEjEFIVFhE0EiFBWBMjNxkbH/2gAMAwEAAhEDEQA/AHL0aNGkQ0aNGkQ0aNGkQ0aNGkQ0aNGkQ0aNGkQ0aNGkQ0aNGkQ0aNGkQ0aNGkQz7aXuv7p3Fc98Kp9l3RRrepbcpyn0Z2fE+oFw1BsZcbSenCOk+jzEnJUeh9tW7xUXhKtLaOailOhFarbzdIpvqwoOvniVD7pRzI++NIz4hJr1H3RYtejvORo1kxo9Lpy0DgoONALce/vLeUtWfuNIn0I2fv8Ah7g2wuemIqnVWDJXBq1NcWFOQpTZwtBI7pPdKvcH2IIF00klkbrNUDey1Nxln6WgbjUxuNXm04S21UWVlhxziOwSsIXn+q8o9zp2ge+dInOqrupe9J2+s+RcVVC3ilSWYkRs/vZkhfRtlse6lH+eACewOrST06aTjdfciPcfiOmzJKkyLW2sgv1Ax1H0yp6eLaT/AD+ocZQPjgoj9R0iXtndi8LTu9td53DQqrT0eSi5aZBi+W5bSpByysL7vNDKUrJyQSD0yNMW2tK0JWhSVJUMgpOQR8g6+YOzNyyalvlHk3G4ZjV2SHabWeYKvNRLylXTr+lRCh8cRp4PChcU2o7dyrWrDynavZ9ReoclSs8loaOGlnP9jCf+A6RNg0aNGkQ0aNGkQ0aNGkQ0aNGkRf8AxXR2Jl+7OwpElfFy6Afpf4XMeWeZ/u9Bj+2dY74j7RpG5ni+iWzQJTMY/h7X5imIUkJYLZWVqUT05Bry0/zwD76kvHhfD1F3fsb8HksLqFvMrn+UtHJLbji08eQ+4bBxnSkPyX35L8h5xanZKlKeUVHKyTk5+eukRivGI1tXTbWsy09uapSX/wAGelJksw3Q8vDqWyXHHBkKUS38+/sBrWto/FJbEbbWhxLqg3JIrcSMmNLdiwC8h0o9KV8+QyVJAJ++dKzsTbN31245s+0rYpdwJpERUmfEqMdDsd1rr+6wrrzVxPHiQrocHprbrMs6yd1aDJqm0ctyzbuhN8p9rTH1ORHFg4ynllSQT05DoOgKR31B9Sq02BCa8E+5pN9eKy0GrKrK7eplzIrH0q0QTJp3lth5QwlRVkgBJPI57gY1gvg6d24lTL0pW51WpbUesxI8dtuoO+WJBLilrUHDgJUlSWznIOSD7auly2HZ+2lstXRvnUFVqtSEH6C1KfJLbClY6cikhSgD3VkJHb1djim99tXXAVRrlr1m0u2aXW43mUuJT46W22Wx14Lx6vMwoKJXknPtjADP3FJsKA2gA+pq219kULazxjUik1SbHl0SSy5IoE5bgUhzzEENZV2KgQpOR78T7jW2bAxmYniV3sYZe4FcuE64zwGF80rWFg98gqXn55DXz3K14QnmseWcowr9HXPT46/Gmj8F1/vVvxGVebcUplFQr9I8hvinil51nyyB1J9XBCj9znUy2PNo0Dro0iGjRo0iGjRo0iGo26a1T7btuo1+qu+VBp8Zcl9XwlCSTj79MAfOpLS+eNf83V+0KPt1ZVHqFRnXBKLssx0ehuMxxJDi+yAXFtnJ6HiRpESmbLuDd3d8vLJdq1yVIJbSeoZSpWEp/uoR/gnUnZW37LviCh7c3SssMMVdyNUFBXDk01yUrB9gpKeh+DnWw+AqwXF7o1q5p6Gnm6CyqLGcbWFtrfWSlSkq/iASlQBHzq9eMC0naRuJYe5dm03zbqXV0R1x2xj61TafMbBH9bihSD8ggew0kA5np2wodH2vveoXFtXU2bqsyrNMmr0hh8O1CnpTkokNpJ5OtjmokYyQo45EDUR4iNu1WxVmvEPtTUmYqo6kzalHS5xafSogFxHzyzhSD3JzjOdZ5fEsTWKXQ2apCt2bAlKmW/WZbyoqvw155bwQ06Oy2issqbJ6FvHt0hd3t6q3WLDqO1dRq0O52mpTLrNfijyVPJSeSkOIHpWcn9aSMke/fXorgZkzTthbDlbu3ZI373PnRX6aHlqp8DzOTbflKOOf9VtvBwnuT1P3tu8lMhbtXJSZN71pi09vKY4pyC3IWGp1acKfU6hJ9SGQkYBxkjkcYIIXfZTequWVZK9vaXOhUhNUqa3l1qYgvpgNLbSnCGcYzySTyOQM9vfVmtiaqLOr9JduSDdNcuBx1EmttPmQ7FpQAMh19zqlsBsKAQD3V/LRVyMxM43ksylUre6TadlrMymznoqqWEKLhKJCEKSkE9Tjn3PtqJuWlXFtHu07DS8Wazb85D0d5IIDgGFIUPlKknt98aaLww2sLs38vy/7royotUpTsX8NhOoCRFS82otnHspDKGwB7cj76hv9oNYjirht6+IKEgS2zT56zgJQpJBaWo/GFKBPXASNeZBIHMbHbq6YF7WRSLrphxFqcVL6Uk5Lauy0E/KVBST9wdWDSyeCFN4Wd+ObY3nSpsQtD8VpDygXI7rKilLwaeTlBTyU0oBJ6lxR+dM3pJho0aNIho0aNIhrEPGDfC7a28atqny0xqpc7i4aXS5xLEVKcyHc/ZJCf+PPtrb9Y7vbt1t/Prrm6e5Lr0+lW9S+DdNX0jghalFRAOXFqKkpCSQCQAc51BnlgSCAcRatu93fyKuJb1nPNuMvSGlOJRHC/MSMJKeSugT36j3OmT8UsSY3YFJvKnxVSpFn1uJXlMJ/U4y2rDqRj+yok/YHS00FMm8L4RX6pEiwn6rIZajxWkpbagxQoJbZQB0SEo7/AH/np4K9UYFPt+bUZ6UuwI8da3wUhQU2E+oEe4I9tV1NnIH1OF0i6oPbWjFgv2T998zE9z7N/bRZ1Oo1hx6PBtSovipyK6+2lxSCs81txWx6krKwS4SUdeQ65VrIPERs7bFmUrb/AG4s2KqRW7gqxMmfISFyXeISgdf4UDzSeKcDp1yeumC2JosezL4v+yaUyuNQm34VZpMdRJDbUppSVhOeyQ6wsAe2NQFy1m0I2/z153XNWpdBhim0WA20pxSFkqL0lQ7AnlwT9hn41YTidm/UVULvtbAmPbA7PWzVrv3L2jvqGHplMeYfgTmR5cptCStPmNqOcJUFtkpOQeQ6dBrWdpNs3NnKVXKHdbdFqtmOOCoGuBCGHmUtkL8qWlX6m8oSRgq6kgjB6fo3HZtR3xoe4Vtzls1B1lVIrER1lSFTI6wPLcT7FSFhGR3KR9gNWjxE0pN4OWPYUhb6YVbuAOVJptRAdhxmHHnEKI6gFQbH88fbUg5kUaqm9d1TAj1PN4YlSK9Gu/ceRHVGYu6uLkQEqSUrMRlIaaUf58VH/H31gW7m8DlxVisWldCm2YTU9z6dtyMB5aUFSBhY7gjJOdOTaz9Let+IuitNsU1DZbjtIRxS2hBKeIHtjGkp3GgyaHuFPq9GLT9SpNReej+YhK25LZOVNLHZSFJJSR/+Hi1tonI6zbUfjSwkKx5B/wBfxNu8Fl8/idtz9vp9QalS7e4rpyy7lb9PX+j39Xlq9BI6AFsYHuwusP2LsTbqoVimby7eNPUMVSA4xOpbJHkFSiOaCj/s1IcQOifSePQdc63Aa9DidusFVAJyYaNGjUz3Im6bkoVr09FQuCpx6dFcdSyhx44ClnOEj5Jwen21XDu7tuP+90D/AJL/AOnXO9VFqVYs0uUp2M3KpzpmgPuuNpWlLTiVgLb9SVcVnBHYgaSZyp1dG5a6Sm5rnNK5KfSz+LOhwt/Tl4N8/wDkOWM63aLRDVBzuxtGZRbb8ZAxzHX/AGvbb/8Am2B1/sr/AOnWN+Kevsbg0Gg0i0LqtpdMbmKlVFubIda89SAPKQCEEFOVLJHyE6yvxD/mCz7hbYh3LW47pU424lmpvlpaUtMuNrAUolJKXQFDJGR01zfQrNJsNU6LWrgZVHlNxmpv49IW5KWlDPn82jhKRl9JTxPYYOtQ6QGWtvk/r47Sk6gncrLxI2TTrlZQD9bZksAHDbNUVyOPb1IA11ubmXHEtqXa1WTWIdJcIW9wX57QGMYDic4R0zgdNX7Yz8z1OxqnUYtReqLzlMlOT1VOrygUspcKQlgIyELwgnmevX41A0qpu0J25U1KTVrkiMvVWKhip1NxbKWoqGVN8m+y1KcdQDn2SfnWZulKjuit3U445nNPS9GVBVCuRyCYyGydRhXjSKFfVMmsPkUZdHqAQrJU624hTecduP70gHrh0fJ1h/insetW7uBL3AjJqMi35jIcdEZBcTHkAEKDgA9KD0IV29jjpqlbaVi9bSphvizrqp0dyru/71ps9jMN+ap5aUtpSkANrCCyv9SSoO+nIQoCzJ38cuiIuibqV+VRI/MtVCkUamCMqSkdFNuPuOLVwJBSeHEkZ6+2seo0xrc1P9TdalLadVsyR5xkzzeGuya1fW4FFvJQqUe24AD8hb6ChqQ6kehDWf1erCiR0GO+Tpm92pkS2oT1/wA+WxHaolHlxmi4rALshxjiRn3y0E/PrI0tru+1IsqC7B2sr8t2mNnlGolWgCW1EHcpZdS4lxKOv6VlQHYY1+qC3uVvvUqW/eb0d+O0RNgUGJmJEbSOglyV4WsIJ5JQPUVkK44SFq15qqwuRwJGlqoFRrqyBxxgyms7n3Gm3k2xRRWZNMkO+dnBZbKj3AcVjCCepGcE9ddjFOupxpKzJtCmlSchqXU1c+vzxQRrzVmZWmdzqdQYly3FCp8pyJzZbqzq/JDgHNKFZGQPVjp76lN6Xqtb8GiT6dX6/EcmtgrQisPuIKVRo7yP1HPIecQT2OAcDtrr/sal60NmS4yO05q9M0gUl0Lbe3ckzSPCzWlbe1C5Il1XPazdEqTiZkdEKa46WZIASvCeA9K0gEnPQoHTr0Y5y9bUTb6a+Lipy6YpwNJkNvBaVuHs2AnJK+v6QM/bSZooNVqVlzJsDcC6o1bi0j8RYYlVRbiJgDTDjqUJAHDBfCU5UrJGMfHG4tcqcJqkNuVyRFRW3IyFSkq9cWN9FEDy0q7hbilHkrOcNpGcE6rXpgdwlb5yccY4nZS4ImMYA4jcPbp2W1OTAcn1ITFpUtMf8FmF1SU45KCfKyUjIGcYz01bKRUIlWpUWpwHfOiS2UvMucSnkhQBBwQCOh7EZ0jKoUiiVSDBoVcqsFoVSGqpUd6qGSl1hT6Uof8A0pIPIJzgFJC0kKI6BzdsCDtzbpGCPw1jt/cGsuo061KGVsgy6uwvyMT3Xhj8p1jP/gH/APLVr56STNG7jX4bGiSZXFoIamOcGVAw0hQWrI4jiVdcjGn23VrTVEsme65GckLlNritIS4hscloV6lKWoJSkAEkk9hpBpEumL3ecDVVhmMSYqZanQlkq+l8oK59uPL37a6fRCV+VgM/iZm1vfaPc7N3XLhVCpiK5DpjLaBILDkSeuWpxRDYXzW4tSgQkNgAnoMY6avW62f2Rn5/G5H+XA1EeKq4abX7kivQ5DPmqC3VsJkNPKaBjxmxyLalJ6lpZAznGCcZxqTvCQiv2IzR6WG5apn1dRhPMvIcDykogKUzxSrkl0JQ5lKgD0GM510mfbXpWYYwe/qUAf3AO/aXTwvZ/ZdXx8W/O/zXdU1imrq1x1KC1DlyzIrtbZdbjpRkMOIhoWslSgBwCgsd8lIGOuvLszuPSbasafTH58KI65GfgyUylOJWGXF8+bSUpUFrwpaeJKeuDnXElNVNrXBWpEdcYzoVTqLgUMLYckvRVNtn4WGmULI7gOJ+dYtVU6X257bmGD/MtQqyL6HeUh9i6NtbhUltTJacUUBeEvwqihCiCFDqleCOqT6kn4Orndleau2g1O4y2Urm0h/gylptDMNbTzXmNpCUjKub3MLPqKXMHqnr7jdFhVXbqYmUxT4C3VPyZjH1HB1UhaFqIUyRlSw8Qpt1B/Qrirok5rzNNk2/sqHKu7DimosznEMuvpS/zcMQNoDeeWShsr7dAU/Ot1zjVKrWpiwMB/mVAGvIU/iRKTErdXgW4xTUAKopqKZLjCmv3cl1sIPlrI/Unjx9P3zp3/DLcdEq9vyo8JDaJj7hqJWB632HFEJ5HtlopLBSOiQ2jACVJ0q22UIXPtzVbXEmmIZalSanIcfkIbdh+XHb8p9PI5UgkONqAzgKB9hrp2A3FXZ9wMJdmtstJWqRF818JaDigA60tWDxbdSlIz2C0NK/hOvfVdOmrrf4xhkPHkSNPYaiN3BnNb672UL58yD/APWpvxHAGhWjkZBjM/8AxsHVXr1VpyN36VPXNiFiO7C89xp9LjbZSElY5joQnqMjp01L7+VeFPotuRW5UFUiOjy1tx5rUjCW4kVkLy2ogBSm1YBwcala2/UaXtwvf12kMQUs9me+3ajXmqxT13cr8v0xi2IH0suEByEJVRhhb+cKysjIPT4GNT27dk/mGNL/AC0qtS4VPdTIhT62lEf6xaw2y4w3kIOBxZKDwAJ5JySU6rrV2WYLVaerFQYm+RTIzESJHfWXsoMR1TDjamwEjzoyvWF9lnAzr03TWkRbb27kXEtUmNV6ZOXUSoFzHnSQ+lZT/ElK+CsfA1heu8akX1jaRx7Iz/3EtDoE2GVmwb8rtqy1UGrKDcUJ+kBnQ0PPUtXNKgpsOJOEpWlKijscZGCM6erZ2Q1I2yoSWismNG+jdKiCfNYUWnO3T9aFaSzdz8Euyo0iHbiojlRkO8G240z6oR4wbTyK3SAeCVBRTzPJKQc9AAHO2YgSKdtzTmpI4qeckSkA9w28+46jPweC05HznWbrLV2rXaF2sc5Eu0u4FlJyPqTN3W/EuWlCnzH5LCEupdStgpCgRnp6kqBBBIII99U47O0Agj8UqYB7/wBHhf6fWk6NcQMy8GayAeZmzmz1EcWVKrVVJPf+jwf9Pr2Uzam2Yjzi5SptRSqOuOlD5bbS2FqbUpaPJQgpXlpvC/1DiMEavujQuxGCYCgcTLxslan15mKkynHemFqiQy7/AD83yOef7WeX3z11OVjbegVCmwKe0qTCjw/N9LYbd+o8zHMu+chfmElIOT1yO+rpo1LWu2MmAoHEzH9i1trWXpVRqU2Se0qUzEefScdSHFMFQ+3Xp7YwNftrZe12C+Is6sMofd891LjjUnk6UpSpfJ9tauRCE56+w+BrS9GhtsPLGRtHiZ0ztJSWPN+nr9ZY81tTThbZhJ5IPdJ/o/UH410K2aonHCK5VUKzkH6SAr/AxsHWmaNPkfzGxfEzFOzNGCcKr1VUc9xDp4/wEbGhOzNIJJduCquHtkwqeMD/ANI2tO0afK/mNi+JmZ2bohOTXKqf/awP9NrhWz8FYKXLruBSeRwUoiIWlHp/dhSWAQ36E5T2OOvfWm6MafI/mTtHiZrQNm7XpNTTM8x6QgHkuOIsWO08fbzPJaQpwdP0qPHoMg60odtGNGoZ2c5Y5k4xP//Z" alt="Huskies Logo">
+  <div class="header-text">
+    <h1>Hollyburn Huskies</h1>
+    <p>Season 2026 / 2027 &middot; U11C Statistics</p>
+  </div>
+  <button class="header-dash-btn" data-action="tab-dashboard">📊 Dashboard</button>
+  <button class="header-save-btn" data-action="saveGame">💾 Save Game</button>
+</header>
+
+<nav class="tabs">
+  <button class="tab-btn active" data-tab="roster" data-action="tab-roster">📋 Roster</button>
+  <button class="tab-btn" data-tab="game" data-action="tab-game">🏒 Game Entry</button>
+  <button class="tab-btn" data-tab="history" data-action="tab-history">📅 History</button>
+  <button class="tab-btn" data-tab="dashboard" data-action="tab-dashboard">📊 Dashboard</button>
+</nav>
+
+<!-- TAB 1 — ROSTER -->
+<div id="tab-roster" class="panel active">
+  <div class="card">
+    <div class="card-header"><span class="dot"></span>Huskies Roster — Season 26/27 &nbsp;<small style="opacity:.7;font-size:.72rem;font-weight:400">(19 Players · U11C)</small></div>
+    <div class="card-body">
+      <div class="roster-wrap">
+        <table class="roster" id="roster-table">
+          <thead><tr><th>#</th><th>Player Name</th><th>Position</th><th>Line</th><th>Date Added</th><th></th></tr></thead>
+          <tbody id="roster-body"></tbody>
+        </table>
+      </div>
+      <button class="btn-add-row" data-action="addRosterRow">+ Add Player</button>
+      <button data-action="saveState" style="margin-top:10px;padding:11px 18px;background:linear-gradient(135deg,var(--green),#43a047);color:#fff;border:none;border-radius:8px;font-size:0.85rem;font-weight:700;cursor:pointer;width:100%;letter-spacing:.3px;">💾 Save Roster</button>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 2 — GAME ENTRY -->
+<div id="tab-game" class="panel">
+
+  <!-- Game Header -->
+  <div class="card">
+    <div class="card-header"><span class="dot"></span>Game Information</div>
+    <div class="card-body">
+      <div class="field-row">
+        <div class="field-group"><label>Date</label><input type="date" id="g-date"></div>
+        <div class="field-group"><label>Opponent</label><input type="text" id="g-opp" placeholder="e.g. North Shore Bears"></div>
+        <div class="field-group"><label>Location</label><input type="text" id="g-loc" placeholder="e.g. Hollyburn Arena"></div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>🟢 Huskies Score</label><input type="number" id="g-score-us" min="0" value="0"></div>
+        <div class="field-group"><label>🔴 Opponent Score</label><input type="number" id="g-score-them" min="0" value="0"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Parent 1 — Team Stats SPLIT -->
+  <div class="card">
+    <div class="card-header"><span class="dot"></span>📲 Parent 1 — Team Stats by Period</div>
+    <div class="card-body">
+
+      <div class="split-tables">
+        <!-- FOR TABLE -->
+        <div class="stat-block">
+          <div class="stat-block-header for-header">✅ Huskies — FOR</div>
+          <div class="stat-block-body for-bg-tbl">
+            <table class="split-tbl">
+              <thead><tr>
+                <th class="for-th" style="text-align:left">Period</th>
+                <th class="for-th">Shots</th>
+                <th class="for-th">Chances</th>
+              </tr></thead>
+              <tbody id="for-body"></tbody>
+              <tfoot id="for-foot"></tfoot>
+            </table>
+          </div>
+        </div>
+        <!-- AGAINST TABLE -->
+        <div class="stat-block">
+          <div class="stat-block-header against-header">❌ Opponent — AGAINST</div>
+          <div class="stat-block-body against-bg-tbl">
+            <table class="split-tbl">
+              <thead><tr>
+                <th class="against-th" style="text-align:left">Period</th>
+                <th class="against-th">Shots</th>
+                <th class="against-th">Chances</th>
+              </tr></thead>
+              <tbody id="against-body"></tbody>
+              <tfoot id="against-foot"></tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Faceoff + Penalties -->
+      <div class="fo-pen-row">
+        <div class="fo-pen-block">
+          <div class="fo-pen-block-header">🏒 Faceoffs</div>
+          <div class="fo-pen-block-body">
+            <table class="fo-tbl">
+              <thead><tr><th>Period</th><th>Wins</th><th>Losses</th></tr></thead>
+              <tbody id="fo-body"></tbody>
+              <tfoot id="fo-foot"></tfoot>
+            </table>
+          </div>
+        </div>
+        <div class="fo-pen-block">
+          <div class="fo-pen-block-header">⚠️ Penalties</div>
+          <div class="fo-pen-block-body">
+            <table class="fo-tbl">
+              <thead><tr><th>Period</th><th>Penalties</th></tr></thead>
+              <tbody id="pen-body"></tbody>
+              <tfoot id="pen-foot"></tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="fo-pct-bar">
+        <span class="fo-pct-label">Faceoff %</span>
+        <span class="fo-pct-formula" id="fo-formula">Enter faceoff data above</span>
+        <span class="fo-pct-val" id="fo-pct-val">—</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Parent 2 — Player Stats -->
+  <div class="card">
+    <div class="card-header"><span class="dot"></span>📲 Parent 2 — Player Stats</div>
+    <div class="card-body">
+      <div class="player-wrap">
+        <table class="player-tbl" id="player-stat-table">
+          <thead><tr>
+            <th>Player</th><th>Goals</th><th>Assists</th><th>Shots</th><th>Chances</th><th>Takeaways</th>
+          </tr></thead>
+          <tbody id="player-stat-body"></tbody>
+          <tfoot id="player-stat-foot"></tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Notes -->
+  <div class="card">
+    <div class="card-header"><span class="dot"></span>📝 Coach's Game Notes</div>
+    <div class="card-body">
+      <div class="field-row">
+        <div class="field-group"><label>Strongest Period</label><input type="text" id="note-period" placeholder="e.g. 2nd — great puck possession"></div>
+        <div class="field-group"><label>Best Line Combo</label><input type="text" id="note-line" placeholder="e.g. Line 1 — speed & chemistry"></div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label>Key Observations</label><textarea id="note-obs" placeholder="e.g. Strong board battles in defensive zone..."></textarea></div>
+        <div class="field-group"><label>Areas for Improvement</label><textarea id="note-imp" placeholder="e.g. Tighten neutral zone coverage..."></textarea></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Record to History -->
+  <div class="card">
+    <div class="card-header"><span class="dot"></span>📅 Save to Game History</div>
+    <div class="card-body">
+      <p style="font-size:0.82rem;color:#555;margin-bottom:12px">Records all current game data — team stats, player stats, score and notes — into the Game History log. Fill in the game information above before recording.</p>
+      <button class="record-btn" data-action="recordToHistory">📅 Record Game to History</button>
+      <button class="clear-btn" data-action="clearGameEntry">🗑️ Clear All — New Game</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- TAB 3 — HISTORY -->
+<div id="tab-history" class="panel">
+  <div class="card">
+    <div class="card-header"><span class="dot"></span>Season Game History &nbsp;<span id="history-game-count" style="opacity:.7;font-size:.72rem;font-weight:400"></span></div>
+    <div class="card-body">
+
+      <!-- Season summary pills -->
+      <div class="history-stats-summary" id="history-summary"></div>
+
+      <!-- Full history table -->
+      <div class="history-wrap">
+        <table class="history-tbl" id="history-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Opponent</th>
+              <th>Location</th>
+              <th>Result</th>
+              <th>Score</th>
+              <th>Goals</th>
+              <th>Assists</th>
+              <th>Shots For</th>
+              <th>Shots Agnst</th>
+              <th>Chances For</th>
+              <th>Chances Agnst</th>
+              <th>FO Wins</th>
+              <th>FO Loss</th>
+              <th>FO %</th>
+              <th>Penalties</th>
+              <th>Top Scorer</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="history-body"></tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- TAB 4 — DASHBOARD -->
+<div id="tab-dashboard" class="panel">
+  <div class="dash-card" style="margin-bottom:12px">
+    <div class="dash-card-header">🏆 Season Record — Wins · Ties · Losses</div>
+    <div class="dash-card-body"><div style="position:relative;height:80px"><canvas id="chart-record"></canvas></div></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><span class="dot"></span>Section 1 — Current Game Team Metrics</div>
+    <div class="card-body"><div class="metric-grid" id="team-metrics-grid"></div></div>
+  </div>
+  <div class="dash-grid">
+    <div class="dash-card">
+      <div class="dash-card-header">🥅 Top Scorers — Goals</div>
+      <div class="dash-card-body"><ul class="leaderboard" id="lb-goals"></ul><div class="chart-wrap-sm"><canvas id="chart-goals"></canvas></div></div>
+    </div>
+    <div class="dash-card">
+      <div class="dash-card-header">🤝 Assists Leaderboard</div>
+      <div class="dash-card-body"><ul class="leaderboard" id="lb-assists"></ul><div class="chart-wrap-sm"><canvas id="chart-assists"></canvas></div></div>
+    </div>
+  </div>
+  <div class="dash-card" style="margin-bottom:12px">
+    <div class="dash-card-header">🎯 Shots Per Game</div>
+    <div class="dash-card-body"><div class="chart-wrap"><canvas id="chart-shots"></canvas></div></div>
+  </div>
+  <div class="dash-card" style="margin-bottom:12px">
+    <div class="dash-card-header">🏒 Faceoff Performance</div>
+    <div class="dash-card-body"><div class="fo-stats" id="fo-dash-stats"></div><div class="chart-wrap-sm"><canvas id="chart-fo"></canvas></div></div>
+  </div>
+  <div class="card">
+    <div class="card-body">
+      <div style="overflow-x:auto;margin-bottom:12px"><table class="games-table"><thead><tr><th>Game</th><th>Opponent</th><th>Goals</th><th>Shots</th><th>Chances</th></tr></thead><tbody id="last5-body"></tbody></table></div>
+      <div class="chart-wrap"><canvas id="chart-trend"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<div class="save-toast" id="save-toast">✓ Saved!</div>
+
+<script>
+// localStorage with in-memory fallback for Safari file:// restrictions
+var _mem = {};
+var LS = {
+  get: function(k) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : (_mem[k] !== undefined ? _mem[k] : null); } catch(e) { return _mem[k] !== undefined ? _mem[k] : null; } },
+  set: function(k, v) { _mem[k] = v; try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} }
+};
+
+const DEFAULT_ROSTER = [
+  { num:'', name:'Alexander Nygren',   pos:'Forward', line:'1', date:'2026-09-27' },
+  { num:'', name:'Atticus Carpenter',  pos:'Forward', line:'1', date:'2026-09-27' },
+  { num:'', name:'Austin Gillespie',   pos:'Forward', line:'2', date:'2026-09-27' },
+  { num:'', name:'Beau Gallie',        pos:'Forward', line:'2', date:'2026-09-27' },
+  { num:'', name:'Bryn Paulin',        pos:'Forward', line:'2', date:'2026-09-27' },
+  { num:'', name:'Cannon Yuda-Yu',     pos:'Forward', line:'1', date:'2026-09-27' },
+  { num:'', name:'Carmen Doran',       pos:'Forward', line:'3', date:'2026-09-27' },
+  { num:'', name:'Cruz Kwan',          pos:'Forward', line:'3', date:'2026-09-27' },
+  { num:'', name:'Dane Saunders',      pos:'Defense', line:'1', date:'2026-09-27' },
+  { num:'', name:'Daniel Santos',      pos:'Defense', line:'1', date:'2026-09-27' },
+  { num:'', name:'Declan Smith',       pos:'Defense', line:'2', date:'2026-09-27' },
+  { num:'', name:'Frankie Chalke',     pos:'Forward', line:'1', date:'2026-09-27' },
+  { num:'', name:'George Cassels',     pos:'Defense', line:'2', date:'2026-09-27' },
+  { num:'', name:'Harrison Leach',     pos:'Forward', line:'2', date:'2026-09-27' },
+  { num:'', name:'Leanna Zaheri',      pos:'Forward', line:'3', date:'2026-09-27' },
+  { num:'', name:'Lochlan Cramb',      pos:'Defense', line:'3', date:'2026-09-27' },
+  { num:'', name:'Lucas Sarkissian',   pos:'Goalie',  line:'1', date:'2026-09-27' },
+  { num:'', name:'',                   pos:'Forward', line:'4', date:'2026-09-27' },
+  { num:'', name:'',                   pos:'Forward', line:'4', date:'2026-09-27' },
+];
+
+function initTeamStats() {
+  return ['1st Period','2nd Period','3rd Period'].map(function(p) {
+    return { period: p, sf:0, sa:0, cf:0, ca:0, fow:0, fol:0, pen:0 };
+  });
+}
+
+var roster = LS.get('hk_roster') || DEFAULT_ROSTER;
+var games  = LS.get('hk_games')  || [];
+
+function initPlayerStats() {
+  return roster.map(function(r) { return { name: r.name, g:0, a:0, s:0, sc:0, tk:0, pm:0 }; });
+}
+
+var currentTeamStats   = LS.get('hk_cur_team')   || initTeamStats();
+var currentPlayerStats = LS.get('hk_cur_player') || initPlayerStats();
+var currentGameInfo    = LS.get('hk_cur_game')   || {};
+
+function saveState() { LS.set('hk_roster',roster); LS.set('hk_cur_team',currentTeamStats); LS.set('hk_cur_player',currentPlayerStats); LS.set('hk_cur_game',currentGameInfo); showToast(); }
+
+// ── TABS ──
+function showTab(id) {
+  document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b) {
+    b.classList.remove('active');
+    if (b.getAttribute('data-tab') === id) b.classList.add('active');
+  });
+  var panel = document.getElementById('tab-' + id);
+  if (panel) panel.classList.add('active');
+  if (id === 'dashboard') { if (typeof Chart !== 'undefined') buildDashboard(); }
+  if (id === 'history') renderHistory();
+}
+
+// ── ROSTER ──
+function renderRoster() {
+  var tbody = document.getElementById('roster-body');
+  tbody.innerHTML = '';
+  roster.forEach(function(r, i) {
+    var tr = document.createElement('tr');
+    function mkTd(el) { var td = document.createElement('td'); td.appendChild(el); return td; }
+
+    var numIn = document.createElement('input'); numIn.type='text'; numIn.value=r.num; numIn.style.width='38px';
+    numIn.addEventListener('change', function() { roster[i].num = numIn.value; saveState(); });
+
+    var nameIn = document.createElement('input'); nameIn.type='text'; nameIn.value=r.name; nameIn.style.width='145px';
+    nameIn.addEventListener('change', function() { roster[i].name = nameIn.value; syncPlayerDropdowns(); saveState(); });
+
+    var posSel = document.createElement('select');
+    ['Forward','Defense','Goalie'].forEach(function(p) { var o=document.createElement('option'); o.value=p; o.textContent=p; if(r.pos===p) o.selected=true; posSel.appendChild(o); });
+    posSel.addEventListener('change', function() { roster[i].pos = posSel.value; saveState(); });
+
+    var lineSel = document.createElement('select');
+    ['1','2','3','4'].forEach(function(l) { var o=document.createElement('option'); o.value=l; o.textContent=l; if(r.line===l) o.selected=true; lineSel.appendChild(o); });
+    lineSel.addEventListener('change', function() { roster[i].line = lineSel.value; saveState(); });
+
+    var dateIn = document.createElement('input'); dateIn.type='date'; dateIn.value=r.date;
+    dateIn.addEventListener('change', function() { roster[i].date = dateIn.value; saveState(); });
+
+    var del = document.createElement('button'); del.className='btn-del'; del.textContent='✕';
+    del.addEventListener('click', function() { roster.splice(i,1); currentPlayerStats.splice(i,1); renderRoster(); renderPlayerStatTable(); saveState(); });
+
+    tr.appendChild(mkTd(numIn)); tr.appendChild(mkTd(nameIn)); tr.appendChild(mkTd(posSel));
+    tr.appendChild(mkTd(lineSel)); tr.appendChild(mkTd(dateIn)); tr.appendChild(mkTd(del));
+    tbody.appendChild(tr);
+  });
+}
+function addRosterRow() {
+  roster.push({ num:'', name:'', pos:'Forward', line:'1', date: new Date().toISOString().slice(0,10) });
+  currentPlayerStats.push({ name:'', g:0, a:0, s:0, sc:0, tk:0, pm:0 });
+  renderRoster(); renderPlayerStatTable(); saveState();
+}
+function deleteRosterRow(i) { roster.splice(i,1); renderRoster(); saveState(); }
+
+// ── SPLIT TEAM STAT TABLES ──
+function mkCounter(ri, col, val) {
+  var wrap = document.createElement('div'); wrap.className = 'counter';
+  var m = document.createElement('button'); m.className = 'cbtn minus'; m.textContent = '−';
+  var v = document.createElement('div'); v.className = 'counter-val'; v.id = 'ts-'+ri+'-'+col; v.textContent = val;
+  var p = document.createElement('button'); p.className = 'cbtn plus'; p.textContent = '+';
+  m.addEventListener('click', function() { teamAdj(ri, col, -1); });
+  p.addEventListener('click', function() { teamAdj(ri, col,  1); });
+  wrap.appendChild(m); wrap.appendChild(v); wrap.appendChild(p);
+  var td = document.createElement('td'); td.appendChild(wrap);
+  return td;
+}
+function renderTeamStatTables() {
+  ['for-body','against-body','fo-body','pen-body'].forEach(function(id) { document.getElementById(id).innerHTML = ''; });
+  currentTeamStats.forEach(function(row, ri) {
+    function mkRow(bodyId, cols) {
+      var tr = document.createElement('tr');
+      var td0 = document.createElement('td'); td0.textContent = row.period; tr.appendChild(td0);
+      cols.forEach(function(col) { tr.appendChild(mkCounter(ri, col, row[col])); });
+      document.getElementById(bodyId).appendChild(tr);
+    }
+    mkRow('for-body',     ['sf','cf']);
+    mkRow('against-body', ['sa','ca']);
+    mkRow('fo-body',      ['fow','fol']);
+    mkRow('pen-body',     ['pen']);
+  });
+  renderSplitTotals();
+}
+
+function teamAdj(ri, col, d) {
+  const v = Math.max(0, currentTeamStats[ri][col] + d);
+  currentTeamStats[ri][col] = v;
+  document.getElementById(`ts-${ri}-${col}`).textContent = v;
+  renderSplitTotals();
+  LS.set('hk_cur_team', currentTeamStats);
+}
+
+function renderSplitTotals() {
+  const totals = {};
+  ['sf','sa','cf','ca','fow','fol','pen'].forEach(c => totals[c] = currentTeamStats.reduce((s,r)=>s+r[c],0));
+
+  document.getElementById('for-foot').innerHTML =
+    `<tr class="for-total"><td>Total</td><td><strong>${totals.sf}</strong></td><td><strong>${totals.cf}</strong></td></tr>`;
+  document.getElementById('against-foot').innerHTML =
+    `<tr class="against-total"><td>Total</td><td><strong>${totals.sa}</strong></td><td><strong>${totals.ca}</strong></td></tr>`;
+
+  const fTot = totals.fow + totals.fol;
+  const foPct = fTot > 0 ? ((totals.fow / fTot) * 100).toFixed(1) : null;
+  document.getElementById('fo-foot').innerHTML =
+    `<tr class="fo-total"><td>Total</td><td><strong>${totals.fow}</strong></td><td><strong>${totals.fol}</strong></td></tr>`;
+  document.getElementById('pen-foot').innerHTML =
+    `<tr class="fo-total"><td>Total</td><td><strong>${totals.pen}</strong></td></tr>`;
+
+  const pctEl = document.getElementById('fo-pct-val');
+  const fmEl  = document.getElementById('fo-formula');
+  if (foPct) {
+    pctEl.textContent = foPct + '%';
+    fmEl.textContent = `= ${totals.fow} ÷ (${totals.fow} + ${totals.fol})`;
+    pctEl.style.color = foPct>=55?'#2e7d32':foPct>=45?'#e65100':'#c62828';
+  } else { pctEl.textContent = '—'; fmEl.textContent = 'Enter faceoff data above'; }
+}
+
+// ── PLAYER STATS ──
+const PLAYER_COLS = ['g','a','s','sc','tk'];
+function renderPlayerStatTable() {
+  if (currentPlayerStats.length !== roster.length) {
+    currentPlayerStats = roster.map(r => {
+      const ex = currentPlayerStats.find(p => p.name === r.name);
+      return ex || { name: r.name, g:0, a:0, s:0, sc:0, tk:0, pm:0 };
+    });
+  }
+  var tbody = document.getElementById('player-stat-body');
+  tbody.innerHTML = '';
+  currentPlayerStats.forEach(function(row, ri) {
+    var tr = document.createElement('tr');
+    var sel = document.createElement('select');
+    sel.style.cssText = 'font-size:0.82rem;border:1px solid #c8d6e8;border-radius:5px;padding:4px 6px;background:#fffde7;font-family:inherit';
+    var blankOpt = document.createElement('option'); blankOpt.value=''; blankOpt.textContent='— Select —'; sel.appendChild(blankOpt);
+    roster.forEach(function(r) { var o=document.createElement('option'); o.value=r.name; o.textContent=r.name; if(r.name===row.name) o.selected=true; sel.appendChild(o); });
+    sel.addEventListener('change', function() { currentPlayerStats[ri].name = sel.value; LS.set('hk_cur_player', currentPlayerStats); });
+    var tdSel = document.createElement('td'); tdSel.appendChild(sel); tr.appendChild(tdSel);
+    PLAYER_COLS.forEach(function(col) {
+      var wrap=document.createElement('div'); wrap.className='counter';
+      var m=document.createElement('button'); m.className='cbtn minus'; m.textContent='−';
+      var vd=document.createElement('div'); vd.className='counter-val'; vd.id='ps-'+ri+'-'+col; vd.textContent=row[col];
+      var p=document.createElement('button'); p.className='cbtn plus'; p.textContent='+';
+      m.addEventListener('click', function() { playerAdj(ri,col,-1); });
+      p.addEventListener('click', function() { playerAdj(ri,col, 1); });
+      wrap.appendChild(m); wrap.appendChild(vd); wrap.appendChild(p);
+      var td=document.createElement('td'); td.appendChild(wrap); tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+  renderPlayerTotals();
+}
+function playerAdj(ri, col, d) {
+  currentPlayerStats[ri][col] = Math.max(0, currentPlayerStats[ri][col] + d);
+  document.getElementById(`ps-${ri}-${col}`).textContent = currentPlayerStats[ri][col];
+  renderPlayerTotals();
+  LS.set('hk_cur_player', currentPlayerStats);
+}
+function renderPlayerTotals() {
+  const totals = {};
+  PLAYER_COLS.forEach(c => totals[c] = currentPlayerStats.reduce((s,r)=>s+r[c],0));
+  document.getElementById('player-stat-foot').innerHTML =
+    `<tr class="total-row"><td>Totals</td>${PLAYER_COLS.map(c=>`<td><strong>${totals[c]}</strong></td>`).join('')}</tr>`;
+}
+function syncPlayerDropdowns() {
+  currentPlayerStats = currentPlayerStats.map(ps => {
+    const match = roster.find(r => r.name === ps.name);
+    return match ? ps : { ...ps, name:'' };
+  });
+  renderPlayerStatTable();
+}
+
+// ── GAME INFO WIRE ──
+function wireGameInfo() {
+  ['g-date','g-opp','g-loc','g-score-us','g-score-them'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.value = currentGameInfo[id] || '';
+    el.addEventListener('change', () => { currentGameInfo[id] = el.value; LS.set('hk_cur_game', currentGameInfo); });
+  });
+  ['note-period','note-line','note-obs','note-imp'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.value = (currentGameInfo.notes && currentGameInfo.notes[id]) || '';
+    el.addEventListener('input', () => {
+      if (!currentGameInfo.notes) currentGameInfo.notes = {};
+      currentGameInfo.notes[id] = el.value;
+      LS.set('hk_cur_game', currentGameInfo);
+    });
+  });
+}
+
+// ── SAVE GAME ──
+function saveGame() {
+  const gInfo = {
+    date: document.getElementById('g-date').value,
+    opp:  document.getElementById('g-opp').value,
+    loc:  document.getElementById('g-loc').value,
+    scoreUs:   +document.getElementById('g-score-us').value,
+    scoreThem: +document.getElementById('g-score-them').value,
+    teamStats:   JSON.parse(JSON.stringify(currentTeamStats)),
+    playerStats: JSON.parse(JSON.stringify(currentPlayerStats)),
+    notes: currentGameInfo.notes || {}
+  };
+  const idx = games.findIndex(g => g.date === gInfo.date && g.opp === gInfo.opp);
+  if (idx >= 0) games[idx] = gInfo; else games.push(gInfo);
+  LS.set('hk_games', games);
+  showToast('Game saved! ✓');
+}
+
+// ── DASHBOARD ──
+let chartInstances = {};
+function destroyChart(id) { if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; } }
+
+function buildDashboard() {
+  buildMetrics(); buildLeaderboards(); buildShotsChart(); buildFaceoffSection(); buildRecordChart(); buildLast5();
+}
+function buildRecordChart() {
+  let wins=0, losses=0, ties=0;
+  games.forEach(g => {
+    const gf = g.playerStats ? g.playerStats.reduce((s,p)=>s+(p.g||0),0) : g.scoreUs||0;
+    const ga = g.scoreThem||0;
+    if (gf > ga) wins++; else if (gf < ga) losses++; else ties++;
+  });
+  destroyChart('chart-record');
+  chartInstances['chart-record'] = new Chart(document.getElementById('chart-record'), {
+    type: 'bar',
+    data: {
+      labels: [''],
+      datasets: [
+        { label: 'Wins',   data: [wins],   backgroundColor: '#2e7d32', borderRadius: 0, barThickness: 38 },
+        { label: 'Ties',   data: [ties],   backgroundColor: '#9e9e9e', borderRadius: 0, barThickness: 38 },
+        { label: 'Losses', data: [losses], backgroundColor: '#c62828', borderRadius: 0, barThickness: 38 },
+      ]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { weight: '600', size: 12 }, boxWidth: 14, padding: 16 } },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.raw}` } },
+      },
+      scales: {
+        x: { stacked: true, display: false, beginAtZero: true },
+        y: { stacked: true, display: false }
+      },
+      animation: {
+        onComplete: function() {
+          const chart = this;
+          const ctx = chart.ctx;
+          ctx.save();
+          ctx.font = 'bold 15px Segoe UI, sans-serif';
+          ctx.textBaseline = 'middle';
+          ctx.textAlign = 'center';
+          chart.data.datasets.forEach((dataset, di) => {
+            chart.getDatasetMeta(di).data.forEach((bar, i) => {
+              const val = dataset.data[i];
+              if (val > 0) {
+                const bx = bar.x, sx = bar.base ?? (di > 0 ? chart.getDatasetMeta(di-1).data[i].x : bar.x);
+                const midX = (bx + (bar.base !== undefined ? bar.base : bar.x - (bar.x - bar.base))) / 2;
+                ctx.fillStyle = '#fff';
+                ctx.fillText(val, (bx + bar.base) / 2, bar.y);
+              }
+            });
+          });
+          ctx.restore();
+        }
+      }
+    }
+  });
+}
+function buildMetrics() {
+  const tots = {};
+  ['sf','sa','cf','ca','fow','fol','pen'].forEach(c => tots[c] = currentTeamStats.reduce((s,r)=>s+r[c],0));
+  const foPct = (tots.fow+tots.fol)>0 ? ((tots.fow/(tots.fow+tots.fol))*100).toFixed(1) : null;
+  const goals = currentPlayerStats.reduce((s,p)=>s+p.g,0);
+  const metrics = [
+    { label:'Goals For',        val: goals,    cls: goals>=3?'good':goals>=1?'avg':'bad' },
+    { label:'Goals Against',    val: document.getElementById('g-score-them')?.value||0, cls:'neutral' },
+    { label:'Shots For',        val: tots.sf,  cls: tots.sf>=20?'good':tots.sf>=10?'avg':'bad' },
+    { label:'Shots Against',    val: tots.sa,  cls: tots.sa<=15?'good':tots.sa<=25?'avg':'bad' },
+    { label:'Chances For',      val: tots.cf,  cls: tots.cf>=10?'good':tots.cf>=5?'avg':'bad' },
+    { label:'Chances Against',  val: tots.ca,  cls: tots.ca<=8?'good':tots.ca<=15?'avg':'bad' },
+    { label:'Faceoff %',        val: foPct?foPct+'%':'—', cls: foPct>=55?'good':foPct>=45?'avg':'bad' },
+    { label:'Penalties',        val: tots.pen, cls: tots.pen<=2?'good':tots.pen<=5?'avg':'bad' },
+  ];
+  document.getElementById('team-metrics-grid').innerHTML = metrics.map(m =>
+    `<div class="metric-tile ${m.cls}"><div class="m-label">${m.label}</div><div class="m-val">${m.val}</div></div>`).join('');
+}
+function buildLeaderboards() {
+  const sg = [...currentPlayerStats].filter(p=>p.name).sort((a,b)=>b.g-a.g).slice(0,5);
+  const sa = [...currentPlayerStats].filter(p=>p.name).sort((a,b)=>b.a-a.a).slice(0,5);
+  const maxG = sg[0]?.g||1, maxA = sa[0]?.a||1;
+  const COLORS = ['#1a3a6b','#2255a0','#2e7d32','#4caf50','#90caf9'];
+  document.getElementById('lb-goals').innerHTML = sg.map((p,i) =>
+    `<li><span class="lb-rank">${i+1}</span><span class="lb-name">${p.name}</span><div class="lb-bar-wrap"><div class="lb-bar" style="width:${(p.g/maxG)*100}%"></div></div><span class="lb-val">${p.g}</span></li>`).join('')||'<li style="color:#999">No data yet</li>';
+  document.getElementById('lb-assists').innerHTML = sa.map((p,i) =>
+    `<li><span class="lb-rank">${i+1}</span><span class="lb-name">${p.name}</span><div class="lb-bar-wrap"><div class="lb-bar" style="width:${(p.a/maxA)*100}%"></div></div><span class="lb-val">${p.a}</span></li>`).join('')||'<li style="color:#999">No data yet</li>';
+  destroyChart('chart-goals'); destroyChart('chart-assists');
+  chartInstances['chart-goals'] = new Chart(document.getElementById('chart-goals'), { type:'bar', data:{ labels:sg.map(p=>p.name.split(' ')[0]), datasets:[{ data:sg.map(p=>p.g), backgroundColor:COLORS, borderRadius:4 }] }, options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{ticks:{stepSize:1},beginAtZero:true}} } });
+  chartInstances['chart-assists'] = new Chart(document.getElementById('chart-assists'), { type:'bar', data:{ labels:sa.map(p=>p.name.split(' ')[0]), datasets:[{ data:sa.map(p=>p.a), backgroundColor:COLORS, borderRadius:4 }] }, options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{ticks:{stepSize:1},beginAtZero:true}} } });
+}
+function buildShotsChart() {
+  const ss = [...currentPlayerStats].filter(p=>p.name&&p.s>0).sort((a,b)=>b.s-a.s);
+  destroyChart('chart-shots');
+  chartInstances['chart-shots'] = new Chart(document.getElementById('chart-shots'), { type:'bar', data:{ labels:ss.map(p=>p.name.split(' ')[0]), datasets:[{label:'Shots',data:ss.map(p=>p.s),backgroundColor:'#2255a0',borderRadius:4}] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true,ticks:{stepSize:1}}} } });
+}
+function buildFaceoffSection() {
+  const tots = {}; ['fow','fol'].forEach(c=>tots[c]=currentTeamStats.reduce((s,r)=>s+r[c],0));
+  const foPct = (tots.fow+tots.fol)>0?((tots.fow/(tots.fow+tots.fol))*100).toFixed(1):0;
+  const foColor = foPct>=55?'#2e7d32':foPct>=45?'#e65100':'#c62828';
+  document.getElementById('fo-dash-stats').innerHTML = `<div class="fo-stat"><div class="fo-val">${tots.fow}</div><div class="fo-label">FO Wins</div></div><div class="fo-stat"><div class="fo-val" style="color:${foColor}">${foPct}%</div><div class="fo-label">Faceoff %</div></div><div class="fo-stat"><div class="fo-val">${tots.fol}</div><div class="fo-label">FO Losses</div></div>`;
+  destroyChart('chart-fo');
+  chartInstances['chart-fo'] = new Chart(document.getElementById('chart-fo'), { type:'doughnut', data:{ labels:['Wins','Losses'], datasets:[{data:[tots.fow,tots.fol||1],backgroundColor:[foColor,'#e0e0e0'],borderWidth:0}] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}}, cutout:'70%' } });
+}
+function buildLast5() {
+  const last5 = games.slice(-5);
+  document.getElementById('last5-body').innerHTML = last5.map((g,i)=>{
+    const goals = g.playerStats?g.playerStats.reduce((s,p)=>s+p.g,0):g.scoreUs||0;
+    const shots = g.teamStats?g.teamStats.reduce((s,r)=>s+r.sf,0):0;
+    const chances = g.teamStats?g.teamStats.reduce((s,r)=>s+r.cf,0):0;
+    return `<tr><td>${i+1}</td><td>${g.opp||'—'}</td><td>${goals}</td><td>${shots}</td><td>${chances}</td></tr>`;
+  }).join('')||'<tr><td colspan="5" style="color:#999;text-align:center;padding:14px">No games saved yet</td></tr>';
+  destroyChart('chart-trend');
+  const labels = last5.map(g=>g.opp?g.opp.split(' ')[0]:'Game');
+  chartInstances['chart-trend'] = new Chart(document.getElementById('chart-trend'), { type:'line', data:{ labels, datasets:[ {label:'Goals',data:last5.map(g=>g.playerStats?g.playerStats.reduce((s,p)=>s+p.g,0):0),borderColor:'#2e7d32',backgroundColor:'rgba(46,125,50,.12)',tension:.3,fill:true,pointRadius:5}, {label:'Shots',data:last5.map(g=>g.teamStats?g.teamStats.reduce((s,r)=>s+r.sf,0):0),borderColor:'#2255a0',backgroundColor:'rgba(34,85,160,.08)',tension:.3,fill:true,pointRadius:5}, {label:'Chances',data:last5.map(g=>g.teamStats?g.teamStats.reduce((s,r)=>s+r.cf,0):0),borderColor:'#f9a825',backgroundColor:'rgba(249,168,37,.08)',tension:.3,fill:true,pointRadius:5} ] }, options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}}, scales:{y:{beginAtZero:true,ticks:{stepSize:1}}} } });
+}
+
+let toastTimer;
+function showToast(msg='✓ Saved!') {
+  const el = document.getElementById('save-toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(()=>el.classList.remove('show'),2200);
+}
+
+// ── RECORD TO HISTORY ──
+function recordToHistory() {
+  const date    = document.getElementById('g-date').value;
+  const opp     = document.getElementById('g-opp').value;
+  const loc     = document.getElementById('g-loc').value;
+  const scoreUs = +document.getElementById('g-score-us').value;
+  const scoreThem = +document.getElementById('g-score-them').value;
+
+  if (!date || !opp) {
+    showToast('⚠️ Add Date & Opponent first!');
+    return;
+  }
+
+  const entry = {
+    id: Date.now(),
+    date, opp, loc, scoreUs, scoreThem,
+    teamStats:   JSON.parse(JSON.stringify(currentTeamStats)),
+    playerStats: JSON.parse(JSON.stringify(currentPlayerStats)),
+    notes: currentGameInfo.notes || {}
+  };
+
+  // Replace existing entry with same date+opp, or add new
+  const idx = games.findIndex(g => g.date === date && g.opp === opp);
+  if (idx >= 0) games[idx] = entry; else games.push(entry);
+
+  // Sort by date ascending
+  games.sort((a,b) => a.date.localeCompare(b.date));
+  LS.set('hk_games', games);
+
+  showToast('📅 Game recorded to History!');
+  renderHistory();
+}
+
+// ── DELETE HISTORY GAME ──
+function deleteHistoryGame(id) {
+  var ok = true; try { ok = window.confirm('Remove this game from history?'); } catch(e) { ok = true; }
+  if (!ok) return;
+  games = games.filter(g => g.id !== id);
+  LS.set('hk_games', games);
+  renderHistory();
+  showToast('🗑️ Game removed');
+}
+
+// ── RENDER HISTORY ──
+function renderHistory() {
+  const tbody = document.getElementById('history-body');
+  const countEl = document.getElementById('history-game-count');
+  const summaryEl = document.getElementById('history-summary');
+
+  if (!games.length) {
+    tbody.innerHTML = `<tr><td colspan="17"><div class="history-empty"><span class="empty-icon">🏒</span>No games recorded yet.<br>Enter game data and tap <strong>Record Game to History</strong>.</div></td></tr>`;
+    countEl.textContent = '';
+    summaryEl.innerHTML = '';
+    return;
+  }
+
+  // Season totals for summary pills
+  let wins=0, losses=0, ties=0, totalGF=0, totalGA=0, totalSF=0;
+  games.forEach(g => {
+    const gf = g.playerStats ? g.playerStats.reduce((s,p)=>s+(p.g||0),0) : g.scoreUs||0;
+    const ga = g.scoreThem||0;
+    const sf = g.teamStats ? g.teamStats.reduce((s,r)=>s+(r.sf||0),0) : 0;
+    totalGF += gf; totalGA += ga; totalSF += sf;
+    if (gf > ga) wins++; else if (gf < ga) losses++; else ties++;
+  });
+
+  countEl.textContent = `(${games.length} game${games.length!==1?'s':''})`;
+  summaryEl.innerHTML = [
+    { val: `${wins}-${losses}-${ties}`, lbl: 'Season Record' },
+    { val: totalGF,                     lbl: 'Goals For' },
+    { val: totalGA,                     lbl: 'Goals Against' },
+    { val: (totalGF/games.length).toFixed(1), lbl: 'Avg Goals/Game' },
+    { val: (totalSF/games.length).toFixed(1), lbl: 'Avg Shots/Game' },
+  ].map(p => `<div class="hist-stat-pill"><div class="pill-val">${p.val}</div><div class="pill-lbl">${p.lbl}</div></div>`).join('');
+
+  // Rows sorted by date (already sorted in games array)
+  tbody.innerHTML = games.map(g => {
+    const gf = g.playerStats ? g.playerStats.reduce((s,p)=>s+(p.g||0),0) : g.scoreUs||0;
+    const ga = g.scoreThem||0;
+    const assists = g.playerStats ? g.playerStats.reduce((s,p)=>s+(p.a||0),0) : 0;
+    const sf = g.teamStats ? g.teamStats.reduce((s,r)=>s+(r.sf||0),0) : 0;
+    const sa = g.teamStats ? g.teamStats.reduce((s,r)=>s+(r.sa||0),0) : 0;
+    const cf = g.teamStats ? g.teamStats.reduce((s,r)=>s+(r.cf||0),0) : 0;
+    const ca = g.teamStats ? g.teamStats.reduce((s,r)=>s+(r.ca||0),0) : 0;
+    const fow = g.teamStats ? g.teamStats.reduce((s,r)=>s+(r.fow||0),0) : 0;
+    const fol = g.teamStats ? g.teamStats.reduce((s,r)=>s+(r.fol||0),0) : 0;
+    const foPct = (fow+fol)>0 ? ((fow/(fow+fol))*100).toFixed(0)+'%' : '—';
+    const pen = g.teamStats ? g.teamStats.reduce((s,r)=>s+(r.pen||0),0) : 0;
+
+    // Result badge
+    let resultBadge, resultCls;
+    if (gf > ga)      { resultBadge='W'; resultCls='result-w'; }
+    else if (gf < ga) { resultBadge='L'; resultCls='result-l'; }
+    else              { resultBadge='T'; resultCls='result-t'; }
+
+    // Top scorer
+    let topScorer = '—';
+    if (g.playerStats && g.playerStats.length) {
+      const best = [...g.playerStats].filter(p=>p.name).sort((a,b)=>((b.g||0)+(b.a||0))-((a.g||0)+(a.a||0)))[0];
+      if (best && (best.g||0)+(best.a||0) > 0) {
+        const fn = best.name.split(' ');
+        topScorer = fn[0] + ' ' + (fn[1]?fn[1][0]+'.':'') + ' ' + (best.g||0)+'G '+(best.a||0)+'A';
+      }
+    }
+
+    // Format date nicely
+    const dateObj = g.date ? new Date(g.date+'T12:00:00') : null;
+    const dateFmt = dateObj ? dateObj.toLocaleDateString('en-CA',{month:'short',day:'numeric',year:'numeric'}) : g.date||'—';
+
+    return `<tr>
+      <td>${dateFmt}</td>
+      <td style="font-weight:600">${g.opp||'—'}</td>
+      <td style="font-size:.75rem;color:#666">${g.loc||'—'}</td>
+      <td><span class="${resultCls}">${resultBadge}</span></td>
+      <td style="font-weight:700">${gf} – ${ga}</td>
+      <td>${gf}</td>
+      <td>${assists}</td>
+      <td>${sf}</td>
+      <td>${sa}</td>
+      <td>${cf}</td>
+      <td>${ca}</td>
+      <td>${fow}</td>
+      <td>${fol}</td>
+      <td>${foPct}</td>
+      <td>${pen}</td>
+      <td style="font-size:.75rem;color:#444">${topScorer}</td>
+      <td data-del-id="${g.id}"><button class="btn-del" title="Remove game">🗑️</button></td>
+    </tr>`;
+  }).join('');
+  // wire delete buttons
+  tbody.querySelectorAll('[data-del-id]').forEach(function(td) {
+    var id = +td.getAttribute('data-del-id');
+    td.querySelector('button').addEventListener('click', function() { deleteHistoryGame(id); });
+  });
+}
+
+// ── CLEAR GAME ENTRY ──
+function clearGameEntry() {
+  var ok2 = true; try { ok2 = window.confirm('Clear all game inputs and reset for a new game?'); } catch(e) { ok2 = true; }
+  if (!ok2) return;
+
+  // Reset game info fields
+  ['g-date','g-opp','g-loc'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  ['g-score-us','g-score-them'].forEach(id => { const el = document.getElementById(id); if (el) el.value = '0'; });
+
+  // Reset notes
+  ['note-period','note-line','note-obs','note-imp'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+
+  // Reset team stats
+  currentTeamStats = initTeamStats();
+  LS.set('hk_cur_team', currentTeamStats);
+
+  // Reset player stats (keep names, zero all counts)
+  currentPlayerStats = roster.map(r => ({ name: r.name, g:0, a:0, s:0, sc:0, tk:0, pm:0 }));
+  LS.set('hk_cur_player', currentPlayerStats);
+
+  // Reset current game info
+  currentGameInfo = {};
+  LS.set('hk_cur_game', currentGameInfo);
+
+  // Re-render tables with zeroed values
+  renderTeamStatTables();
+  renderPlayerStatTable();
+
+  showToast('🆕 Ready for new game!');
+}
+
+// ── GLOBAL EVENT DELEGATION (replaces all static inline onclick) ──
+document.addEventListener('click', function(e) {
+  var btn = e.target.closest('[data-action]');
+  if (!btn) return;
+  var action = btn.getAttribute('data-action');
+  if (action.startsWith('tab-')) { showTab(action.slice(4)); return; }
+  if (action === 'saveGame')        { saveGame(); return; }
+  if (action === 'addRosterRow')    { addRosterRow(); return; }
+  if (action === 'recordToHistory') { recordToHistory(); return; }
+  if (action === 'clearGameEntry')  { clearGameEntry(); return; }
+  if (action === 'saveState')       { saveState(); return; }
+});
+
+// ── INIT ──
+function initApp() {
+  renderRoster();
+  renderTeamStatTables();
+  renderPlayerStatTable();
+  wireGameInfo();
+  renderHistory();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
+</script>
+</body>
+</html>
